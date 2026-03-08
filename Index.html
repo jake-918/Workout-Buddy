@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>WORKOUT BUDDY</title>
+<meta name="theme-color" content="#080808">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080808;--surface:#111;--surface2:#1a1a1a;--surface3:#222;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0ede8;--muted:#666;--dim:#2e2e2e;
+  --accent:#e8553a;--accent2:#ff6b4a;
+  --gold:#f0a500;--green:#1dc96b;--blue:#4ea8f5;--purple:#b06cf0;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;padding-bottom:var(--sab);}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 50% at 80% -10%,rgba(232,85,58,0.05) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at -10% 80%,rgba(78,168,245,0.03) 0%,transparent 60%);}
+nav{position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:calc(60px + var(--sat));padding-top:var(--sat);background:rgba(8,8,8,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);}
+.logo-mark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--accent),#c03020);display:flex;align-items:center;justify-content:center;font-size:0.95rem;box-shadow:0 0 16px rgba(232,85,58,0.35);}
+.nav-logo em{color:var(--accent);font-style:normal;}
+.nav-right{display:flex;gap:8px;align-items:center;}
+.nav-btn{font-family:'Barlow',sans-serif;font-size:0.74rem;font-weight:700;padding:8px 18px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.2s;letter-spacing:0.08em;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+.nav-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--border2);}
+.nav-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.nav-btn.primary:hover{background:var(--accent2);border-color:var(--accent2);}
+.plan-badge{background:#fff;color:#000;font-size:0.62rem;font-weight:900;padding:2px 6px;border-radius:3px;min-width:18px;text-align:center;}
+.breadcrumb{padding:10px 36px;display:flex;align-items:center;gap:8px;font-size:0.72rem;color:var(--muted);border-bottom:1px solid var(--border);letter-spacing:0.05em;position:relative;z-index:1;}
+.crumb{cursor:pointer;transition:color 0.15s;}.crumb:hover{color:var(--text);}
+.bc-sep{opacity:0.3;}.bc-active{color:var(--text);}
+.screen{display:none;position:relative;z-index:1;}
+.screen.active{display:block;animation:fadeUp 0.4s cubic-bezier(.16,1,.3,1) both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.home-hero{padding:64px 36px 44px;position:relative;}
+.hero-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.26em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.hero-tag::before{content:'';width:28px;height:2px;background:var(--accent);}
+.home-hero h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(4.5rem,11vw,9rem);line-height:.87;letter-spacing:.02em;color:var(--text);margin-bottom:24px;}
+.home-hero h1 em{color:var(--accent);font-style:normal;}
+.home-hero p{font-size:.96rem;color:var(--muted);max-width:500px;line-height:1.8;margin-bottom:48px;}
+.groups-label{font-size:.66rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);padding:0 36px;margin-bottom:18px;}
+.group-strip{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border);border-left:1px solid var(--border);}
+.group-card{border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:28px 22px 24px;cursor:pointer;position:relative;overflow:hidden;transition:background .25s;min-height:240px;display:flex;flex-direction:column;justify-content:flex-end;}
+.group-card::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;}
+.group-card.upper::after{background:linear-gradient(135deg,rgba(232,85,58,.13),transparent);}
+.group-card.lower::after{background:linear-gradient(135deg,rgba(240,165,0,.13),transparent);}
+.group-card.cardio::after{background:linear-gradient(135deg,rgba(29,201,107,.13),transparent);}
+.group-card.core::after{background:linear-gradient(135deg,rgba(78,168,245,.13),transparent);}
+.group-card.hiit::after{background:linear-gradient(135deg,rgba(176,108,240,.13),transparent);}
+.group-card:hover::after{opacity:1;}.group-card:hover{background:var(--surface);}
+.gc-num{position:absolute;top:14px;right:18px;font-family:'Barlow Condensed',sans-serif;font-size:5rem;font-weight:900;line-height:1;opacity:.03;color:var(--text);transition:opacity .3s;pointer-events:none;}
+.group-card:hover .gc-num{opacity:.07;}
+.gc-count{position:absolute;top:16px;left:18px;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:3px;border:1px solid var(--border);color:var(--muted);}
+.gc-icon{font-size:2.6rem;margin-bottom:14px;display:block;transition:transform .3s cubic-bezier(.25,.8,.25,1);}
+.group-card:hover .gc-icon{transform:scale(1.12) rotate(-3deg);}
+.gc-name{font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.group-card.upper .gc-name{color:var(--accent);}.group-card.lower .gc-name{color:var(--gold);}
+.group-card.cardio .gc-name{color:var(--green);}.group-card.core .gc-name{color:var(--blue);}
+.group-card.hiit .gc-name{color:var(--purple);}
+.gc-sub{font-size:.7rem;color:var(--muted);line-height:1.45;}
+.gc-arrow{position:absolute;bottom:20px;right:20px;width:30px;height:30px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8rem;opacity:0;transform:translateX(-6px);transition:all .22s;}
+.group-card:hover .gc-arrow{opacity:1;transform:translateX(0);}
+.ex-screen-wrap{max-width:1440px;margin:0 auto;}
+.ex-header{padding:44px 36px 0;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.ex-header-left h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(2.8rem,5.5vw,5rem);letter-spacing:.06em;line-height:.9;margin-bottom:8px;}
+.ex-header-left p{color:var(--muted);font-size:.88rem;max-width:480px;line-height:1.65;}
+.ex-header-right{font-size:4rem;line-height:1;flex-shrink:0;}
+.ex-filter{display:flex;gap:8px;padding:22px 36px 28px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.filt-btn{font-family:'Barlow',sans-serif;font-size:.72rem;font-weight:700;padding:7px 16px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:5px;}
+.filt-btn:hover{color:var(--text);border-color:var(--border2);}
+.filt-btn.active{color:#fff;border-color:transparent;}
+.filt-btn.f-all.active{background:var(--text);color:#000;}
+.filt-btn.f-strength.active{background:var(--accent);}
+.filt-btn.f-cardio.active{background:var(--green);}
+.filt-btn.f-flexibility.active{background:var(--blue);}
+.ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border);margin:28px 36px 60px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.ex-card{background:var(--surface);padding:22px;cursor:pointer;transition:background .18s;position:relative;display:flex;flex-direction:column;gap:12px;}
+.ex-card:hover{background:var(--surface2);}
+.ex-card-top{display:flex;align-items:flex-start;justify-content:space-between;}
+.ex-icon{font-size:2.2rem;line-height:1;}
+.ex-tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
+.tag{font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:3px;}
+.tag.strength{background:rgba(232,85,58,.15);color:var(--accent);}
+.tag.cardio{background:rgba(29,201,107,.15);color:var(--green);}
+.tag.flexibility{background:rgba(78,168,245,.15);color:var(--blue);}
+.tag.beginner{background:rgba(29,201,107,.08);color:var(--green);}
+.tag.intermediate{background:rgba(240,165,0,.08);color:var(--gold);}
+.tag.advanced{background:rgba(232,85,58,.08);color:var(--accent);}
+.ex-name{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;line-height:1.1;}
+.ex-muscle{font-size:.72rem;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:5px;}
+.ex-muscle::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;flex-shrink:0;}
+.ex-stats{display:flex;gap:12px;padding-top:10px;border-top:1px solid var(--border);font-size:.72rem;}
+.ex-stats span{color:var(--muted);display:flex;align-items:center;gap:4px;}
+.add-ex-btn{margin-top:auto;width:100%;padding:9px;border-radius:5px;border:1px dashed var(--border);background:transparent;color:var(--muted);font-family:'Barlow',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.08em;}
+.add-ex-btn:hover{border-color:var(--border2);color:var(--text);}
+.add-ex-btn.added{border-style:solid;border-color:var(--green);color:var(--green);background:rgba(29,201,107,.07);}
+.add-ex-btn.multi{border-style:solid;border-color:var(--gold);color:var(--gold);background:rgba(240,165,0,.07);}
+.add-custom-tile{background:var(--surface);padding:22px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:200px;transition:background .18s;}
+.add-custom-tile:hover{background:var(--surface2);}
+.act-icon{width:48px;height:48px;border-radius:6px;border:1.5px dashed rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--muted);transition:all .25s;}
+.add-custom-tile:hover .act-icon{border-color:var(--accent);color:var(--accent);background:rgba(232,85,58,.08);}
+.act-label{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);transition:color .2s;}
+.add-custom-tile:hover .act-label{color:var(--text);}
+.act-sub{font-size:.68rem;color:var(--dim);text-align:center;line-height:1.5;}
+.planner-wrap{padding:0 36px 80px;max-width:1440px;margin:0 auto;}
+.planner-top{padding:36px 0 24px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+.planner-top h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(2.2rem,4.5vw,3.8rem);letter-spacing:.08em;}
+.planner-top p{color:var(--muted);font-size:.78rem;margin-top:3px;}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:24px;}
+.day-col{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;}
+.day-head{padding:9px 10px;background:var(--surface2);font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center;border-bottom:1px solid var(--border);}
+.day-body{padding:8px;flex:1;min-height:160px;}
+.ex-chip{border-radius:5px;padding:6px 8px;margin-bottom:5px;font-size:.69rem;line-height:1.35;position:relative;border-left:2px solid transparent;background:var(--surface2);}
+.ex-chip.upper-chip{border-color:var(--accent);}
+.ex-chip.lower-chip{border-color:var(--gold);}
+.ex-chip.cardio-chip{border-color:var(--green);}
+.ex-chip.core-chip{border-color:var(--blue);}
+.ex-chip.hiit-chip{border-color:var(--purple);}
+.chip-name{color:var(--text);font-weight:600;padding-right:16px;}
+.chip-meta{color:var(--muted);font-size:.62rem;margin-top:2px;}
+.chip-remove{position:absolute;top:5px;right:6px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:.6rem;opacity:0;transition:opacity .15s;padding:2px;}
+.ex-chip:hover .chip-remove{opacity:1;}
+.day-empty{padding:14px 8px;border:1px dashed var(--dim);border-radius:5px;text-align:center;font-size:.65rem;color:var(--dim);margin-top:4px;}
+.day-summary{border-top:1px solid var(--border);padding:6px 8px;font-size:.6rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;}
+.day-summary span{display:flex;align-items:center;gap:3px;}
+.planner-footer{display:flex;flex-wrap:wrap;align-items:stretch;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.pf-stat{text-align:center;padding:20px 24px;border-right:1px solid var(--border);flex-shrink:0;}
+.pf-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2rem;color:var(--text);letter-spacing:.06em;display:block;}
+.pf-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700;}
+.pf-actions{margin-left:auto;display:flex;gap:8px;align-items:center;padding:0 20px;}
+.overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;padding:20px;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:400px;max-width:100%;padding:26px 26px 22px;transform:translateY(22px) scale(.97);transition:transform .3s cubic-bezier(.16,1,.3,1);box-shadow:0 40px 100px rgba(0,0,0,.7);}
+.overlay.open .modal{transform:translateY(0) scale(1);}
+.modal-ex-row{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.modal-ex-icon{font-size:2.2rem;flex-shrink:0;}
+.modal-ex-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:1.1rem;line-height:1.1;}
+.modal-ex-sub{font-size:.68rem;color:var(--muted);margin-top:3px;}
+.modal-lbl{font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.day-picker{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:18px;}
+.day-pill{border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:9px 4px;cursor:pointer;text-align:center;transition:all .16s;position:relative;}
+.day-pill:hover{border-color:var(--border2);color:var(--text);background:var(--surface2);}
+.day-pill.selected{background:var(--accent);border-color:var(--accent);color:#fff;}
+.pill-count{display:block;font-size:.5rem;color:inherit;opacity:.6;margin-top:1px;font-weight:700;}
+.modal-actions{display:flex;gap:8px;}
+.modal-cancel{flex:1;padding:11px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Barlow',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .16s;text-transform:uppercase;letter-spacing:.07em;}
+.modal-cancel:hover{background:var(--surface2);color:var(--text);}
+.modal-confirm{flex:2;padding:11px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-family:'Barlow',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:background .16s;text-transform:uppercase;letter-spacing:.07em;}
+.modal-confirm:hover{background:var(--accent2);}
+.cr-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.88);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:20px;}
+.cr-overlay.open{opacity:1;pointer-events:all;}
+.cr-modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:580px;max-width:100%;max-height:90vh;overflow-y:auto;transform:translateY(26px) scale(.97);transition:transform .32s cubic-bezier(.16,1,.3,1);box-shadow:0 40px 100px rgba(0,0,0,.7);}
+.cr-overlay.open .cr-modal{transform:translateY(0) scale(1);}
+.cr-modal::-webkit-scrollbar{width:3px;}.cr-modal::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px;}
+.cr-head{padding:22px 24px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;background:var(--surface);z-index:2;}
+.cr-head h3{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--text);}
+.cr-badge{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:3px;border:1px solid var(--border);color:var(--muted);}
+.cr-x{width:30px;height:30px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.cr-x:hover{background:var(--surface2);color:var(--text);}
+.cr-body{padding:22px 24px 24px;}
+.cr-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.cr-row.full{grid-template-columns:1fr;}
+.cr-field{display:flex;flex-direction:column;gap:5px;}
+.cr-field label{font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+.cr-field input,.cr-field select,.cr-field textarea{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:10px 13px;font-family:'Barlow',sans-serif;font-size:.85rem;color:var(--text);outline:none;width:100%;transition:border-color .16s;}
+.cr-field input:focus,.cr-field select:focus,.cr-field textarea:focus{border-color:var(--border2);}
+.cr-field input::placeholder,.cr-field textarea::placeholder{color:var(--dim);}
+.cr-field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px;}
+.cr-field select option{background:var(--surface2);}
+.cr-field textarea{resize:vertical;min-height:60px;line-height:1.5;}
+.emoji-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.emoji-opt{width:36px;height:36px;border-radius:5px;border:1px solid var(--border);background:var(--bg);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s;}
+.emoji-opt:hover{border-color:var(--border2);background:var(--surface2);}
+.emoji-opt.sel{border-color:var(--accent);background:rgba(232,85,58,.12);}
+.emoji-custom{width:70px;padding:0 9px;border-radius:5px;border:1px solid var(--border);background:var(--bg);font-size:1.05rem;color:var(--text);font-family:'Barlow',sans-serif;text-align:center;outline:none;}
+.cr-divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.cr-submit-row{display:flex;gap:8px;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);}
+.cr-submit{flex:1;padding:13px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-family:'Barlow',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:background .18s;letter-spacing:.08em;text-transform:uppercase;}
+.cr-submit:hover{background:var(--accent2);}
+.cr-cancel{padding:13px 20px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Barlow',sans-serif;font-size:.85rem;cursor:pointer;transition:all .16s;}
+.cr-cancel:hover{background:var(--surface2);color:var(--text);}
+.del-overlay{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;padding:20px;}
+.del-overlay.open{opacity:1;pointer-events:all;}
+.del-modal{background:var(--surface);border:1px solid rgba(232,85,58,.25);border-radius:11px;width:380px;max-width:100%;padding:28px 24px 22px;text-align:center;transform:translateY(18px) scale(.97);transition:transform .26s cubic-bezier(.16,1,.3,1);box-shadow:0 32px 80px rgba(0,0,0,.65);}
+.del-overlay.open .del-modal{transform:translateY(0) scale(1);}
+.del-icon{width:50px;height:50px;border-radius:7px;margin:0 auto 16px;background:rgba(232,85,58,.1);border:1px solid rgba(232,85,58,.22);display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+.del-modal h4{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.del-preview{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:11px 14px;margin:12px 0 14px;display:flex;align-items:center;gap:10px;justify-content:center;}
+.del-preview-icon{font-size:1.6rem;}.del-preview-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:.95rem;}
+.del-warning{font-size:.79rem;color:var(--muted);line-height:1.6;margin-bottom:20px;}.del-warning strong{color:var(--accent);}
+.del-actions{display:flex;gap:8px;}
+.del-keep{flex:1;padding:11px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Barlow',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .16s;text-transform:uppercase;letter-spacing:.06em;}
+.del-keep:hover{background:var(--surface2);color:var(--text);}
+.del-confirm{flex:1.4;padding:11px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-family:'Barlow',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:background .16s;text-transform:uppercase;letter-spacing:.06em;}
+.del-confirm:hover{background:#c8401e;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--text);color:var(--bg);padding:11px 20px;border-radius:5px;font-size:.78rem;font-weight:800;opacity:0;z-index:9999;transition:all .35s cubic-bezier(.16,1,.3,1);white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.4);letter-spacing:.07em;text-transform:uppercase;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#splash{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;transition:opacity .6s ease;}
+#splash.gone{opacity:0;}
+.sp-icon{width:68px;height:68px;border-radius:16px;background:linear-gradient(135deg,var(--accent),#b02818);display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 0 40px rgba(232,85,58,.4);margin-bottom:28px;opacity:0;transform:scale(.8);animation:spIn .55s cubic-bezier(.16,1,.3,1) .1s forwards;}
+@keyframes spIn{to{opacity:1;transform:scale(1);}}
+.sp-line{overflow:hidden;display:block;}
+.sp-w{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:var(--text);opacity:0;transform:translateY(38px);}
+.sp-w.a{font-size:clamp(3.5rem,12vw,7.5rem);animation:spW .58s cubic-bezier(.16,1,.3,1) .32s forwards;}
+.sp-w.b{font-size:clamp(3.5rem,12vw,7.5rem);animation:spW .58s cubic-bezier(.16,1,.3,1) .48s forwards;}
+.sp-w.c{font-size:clamp(3.5rem,12vw,7.5rem);color:var(--accent);animation:spW .58s cubic-bezier(.16,1,.3,1) .64s forwards;}
+@keyframes spW{to{opacity:1;transform:translateY(0);}}
+.sp-sub{font-size:.68rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);opacity:0;animation:spSub .45s ease 1.05s forwards;margin-top:16px;}
+@keyframes spSub{to{opacity:1;}}
+.custom-badge{position:absolute;top:10px;left:10px;font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:rgba(232,85,58,.15);color:var(--accent);border:1px solid rgba(232,85,58,.25);}
+.card-del-btn{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:all .16s;z-index:3;}
+.ex-card:hover .card-del-btn{opacity:1;}
+.card-del-btn:hover{background:rgba(232,85,58,.14);border-color:rgba(232,85,58,.4);color:var(--accent);}
+@media(max-width:1100px){.group-strip{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:900px){nav{padding:0 18px;}.home-hero,.planner-wrap{padding-left:18px;padding-right:18px;}.ex-header,.ex-filter{padding-left:18px;padding-right:18px;}.groups-label{padding-left:18px;}.ex-grid{margin:18px 18px 40px;}.group-strip{grid-template-columns:1fr 1fr;}.week-grid{grid-template-columns:repeat(2,1fr);}.breadcrumb{padding-left:18px;padding-right:18px;}}
+</style>
+</head>
+<body>
+<div id="splash">
+  <div class="sp-icon">💪</div>
+  <div><span class="sp-line"><span class="sp-w a">BUILD&nbsp;</span><span class="sp-w b">YOUR</span></span><span class="sp-line" style="display:block;text-align:center;"><span class="sp-w c">ROUTINE.</span></span></div>
+  <div class="sp-sub">Workout Buddy</div>
+</div>
+<nav>
+  <div class="nav-logo" onclick="goHome()"><div class="logo-mark">💪</div>WORKOUT <em>BUDDY</em></div>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="openSyncModal()">⇅ Sync</button>
+    <button class="nav-btn" onclick="showScreen('planner');setBreadcrumb([{l:'Home',fn:'goHome()'},{l:'My Week',fn:null}])">📅 My Week <span class="plan-badge" id="planBadge" style="display:none">0</span></button>
+    <button class="nav-btn primary" onclick="goHome()">Browse Exercises</button>
+  </div>
+</nav>
+<div class="breadcrumb" id="breadcrumb"><span class="bc-active">Home</span></div>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="home-hero">
+    <div class="hero-tag">Weekly Workout Planner</div>
+    <h1>BUILD YOUR<br><em>ROUTINE.</em></h1>
+    <p>Pick a muscle group, browse individual exercises, and stack multiple moves onto any day to build a fully custom training session — mix upper, lower, core and cardio however you like.</p>
+  </div>
+  <div class="groups-label">Choose a Muscle Group</div>
+  <div class="group-strip" id="groupStrip"></div>
+  <div style="padding:24px 36px 48px;color:var(--muted);font-size:.8rem;line-height:1.7;">
+    💡 <strong style="color:var(--text)">How it works:</strong> Browse any muscle group, click an exercise, then tap the days you want it on. Stack as many exercises as you want per day to build your custom sessions.
+  </div>
+</div>
+
+<!-- EXERCISE LIST -->
+<div class="screen" id="screen-exercises">
+  <div class="ex-screen-wrap">
+    <div class="ex-header" id="exHeader"></div>
+    <div class="ex-filter" id="exFilter"></div>
+    <div class="ex-grid" id="exGrid"></div>
+  </div>
+</div>
+
+<!-- PLANNER -->
+<div class="screen" id="screen-planner">
+  <div class="planner-wrap">
+    <div class="planner-top">
+      <div><h2>MY WEEK</h2><p>Hover any exercise chip to remove it · Stack as many as you want per day</p></div>
+      <button class="nav-btn primary" onclick="goHome()">+ Add Exercises</button>
+    </div>
+    <div class="week-grid" id="weekGrid"></div>
+    <div class="planner-footer" id="plannerFooter"></div>
+  </div>
+</div>
+
+<!-- DAY PICKER MODAL -->
+<div class="overlay" id="dayOverlay" onclick="closeDayOverlay(event)">
+  <div class="modal">
+    <div class="modal-ex-row">
+      <div class="modal-ex-icon" id="mIcon"></div>
+      <div><div class="modal-ex-name" id="mName"></div><div class="modal-ex-sub" id="mSub"></div></div>
+    </div>
+    <div class="modal-lbl">Tap a day to add or remove</div>
+    <div class="day-picker" id="dayPicker"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeDayOverlayDirect()">Done</button>
+      <button class="modal-confirm" onclick="viewPlanAfterAdd()">View Plan →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM EXERCISE MODAL -->
+<div class="cr-overlay" id="crOverlay" onclick="closeCR(event)">
+  <div class="cr-modal">
+    <div class="cr-head">
+      <div style="display:flex;align-items:center;gap:10px;"><h3>Add Exercise</h3><span class="cr-badge" id="crBadge"></span></div>
+      <button class="cr-x" onclick="closeCRDirect()">✕</button>
+    </div>
+    <div class="cr-body">
+      <div class="cr-field" style="margin-bottom:14px;">
+        <label>Icon</label>
+        <div class="emoji-row" id="emojiRow">
+          <button type="button" class="emoji-opt sel" data-e="💪" onclick="pickEmoji(this)">💪</button>
+          <button type="button" class="emoji-opt" data-e="🏋️" onclick="pickEmoji(this)">🏋️</button>
+          <button type="button" class="emoji-opt" data-e="🤸" onclick="pickEmoji(this)">🤸</button>
+          <button type="button" class="emoji-opt" data-e="🏃" onclick="pickEmoji(this)">🏃</button>
+          <button type="button" class="emoji-opt" data-e="🚴" onclick="pickEmoji(this)">🚴</button>
+          <button type="button" class="emoji-opt" data-e="🧘" onclick="pickEmoji(this)">🧘</button>
+          <button type="button" class="emoji-opt" data-e="🥊" onclick="pickEmoji(this)">🥊</button>
+          <button type="button" class="emoji-opt" data-e="🦵" onclick="pickEmoji(this)">🦵</button>
+          <button type="button" class="emoji-opt" data-e="🔥" onclick="pickEmoji(this)">🔥</button>
+          <button type="button" class="emoji-opt" data-e="⚡" onclick="pickEmoji(this)">⚡</button>
+          <button type="button" class="emoji-opt" data-e="🎯" onclick="pickEmoji(this)">🎯</button>
+          <input class="emoji-custom" id="emojiCustom" maxlength="2" placeholder="✏️" oninput="customEmoji(this.value)">
+        </div>
+      </div>
+      <div class="cr-row">
+        <div class="cr-field"><label>Exercise Name *</label><input type="text" id="crName" placeholder="e.g. Incline DB Press" maxlength="50"></div>
+        <div class="cr-field"><label>Muscle Targeted *</label><input type="text" id="crMuscle" placeholder="e.g. Upper Chest" maxlength="40"></div>
+      </div>
+      <div class="cr-row">
+        <div class="cr-field"><label>Sets × Reps</label><input type="text" id="crSets" placeholder="e.g. 4×10"></div>
+        <div class="cr-field"><label>Est. Calories</label><input type="text" id="crCal" placeholder="e.g. 80"></div>
+      </div>
+      <div class="cr-row">
+        <div class="cr-field"><label>Type *</label><select id="crType"><option value="">— Select —</option><option value="strength">💪 Strength</option><option value="cardio">🏃 Cardio</option><option value="flexibility">🧘 Flexibility</option></select></div>
+        <div class="cr-field"><label>Difficulty</label><select id="crDiff"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="advanced">Advanced</option></select></div>
+      </div>
+      <div class="cr-row full"><div class="cr-field"><label>Notes / Tips (optional)</label><textarea id="crNotes" rows="2" placeholder="Brief form cues..."></textarea></div></div>
+      <div class="cr-submit-row"><button class="cr-cancel" onclick="closeCRDirect()">Cancel</button><button class="cr-submit" onclick="saveCustomEx()">Save Exercise →</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="del-overlay" id="delOverlay" onclick="closeDelOverlay(event)">
+  <div class="del-modal">
+    <div class="del-icon">🗑️</div>
+    <h4>Delete Exercise</h4>
+    <div class="del-preview" id="delPreview"></div>
+    <p class="del-warning">This will <strong>permanently remove</strong> this exercise and unschedule it from all days.</p>
+    <div class="del-actions"><button class="del-keep" onclick="closeDelDirect()">Keep it</button><button class="del-confirm" onclick="confirmDel()">Delete</button></div>
+  </div>
+</div>
+
+<!-- SYNC MODAL -->
+<div class="cr-overlay" id="syncOverlay" onclick="closeSyncOverlay(event)">
+  <div class="cr-modal" style="max-width:500px;">
+    <div class="cr-head"><h3>Sync Data</h3><button class="cr-x" onclick="closeSyncDirect()">✕</button></div>
+    <div class="cr-body">
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:20px;line-height:1.65;">Back up and restore your custom exercises and weekly plan.</p>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:1rem;margin-bottom:6px;">Export</div>
+      <div style="font-size:.78rem;color:var(--muted);margin-bottom:12px;" id="syncMeta">—</div>
+      <button class="nav-btn" style="width:100%;justify-content:center;padding:12px;margin-bottom:22px;" onclick="exportData()">⬇ Download Backup (.json)</button>
+      <hr style="border:none;border-top:1px solid var(--border);margin-bottom:20px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:1rem;margin-bottom:6px;">Import</div>
+      <div style="font-size:.78rem;color:var(--muted);margin-bottom:12px;">Merges with current data — nothing is deleted.</div>
+      <div id="syncDropZone" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor=''" ondrop="handleDrop(event)" style="border:1.5px dashed var(--border);border-radius:8px;padding:22px;text-align:center;cursor:pointer;background:var(--bg);transition:border-color .2s;">
+        <div style="font-size:1.5rem;margin-bottom:6px;">📂</div>
+        <div style="font-size:.76rem;color:var(--muted);margin-bottom:10px;">Drop backup file here or</div>
+        <label style="display:inline-block;font-family:'Barlow',sans-serif;font-size:.74rem;font-weight:700;padding:7px 16px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;text-transform:uppercase;letter-spacing:.08em;">Choose File <input type="file" accept=".json" id="importInput" onchange="handleImportFile(event)" style="display:none"></label>
+      </div>
+      <div id="importPreview" style="display:none;margin-top:10px;background:rgba(29,201,107,.07);border:1px solid rgba(29,201,107,.2);border-radius:7px;padding:14px;">
+        <div style="font-size:.78rem;color:var(--text);margin-bottom:10px;" id="importPreviewText"></div>
+        <div style="display:flex;gap:8px;"><button class="cr-submit" style="flex:1;padding:10px;" onclick="confirmImport()">Import Now</button><button class="cr-cancel" style="padding:10px 16px;" onclick="resetImport()">Cancel</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GROUPS=[
+  {id:'upper',name:'Upper Body',emoji:'💪',color:'var(--accent)',chipClass:'upper-chip',sub:'Chest · Shoulders · Back · Biceps · Triceps',desc:'Individual exercises targeting chest, shoulders, back and arms. Stack as many as you need to build your perfect push, pull or full upper-body session.',
+  exercises:[
+    {id:'ub01',icon:'🏋️',name:'Barbell Bench Press',muscle:'Chest / Triceps',sets:'4×8',cal:90,type:'strength',diff:'intermediate',notes:'Tuck elbows at 45°, lower bar to lower chest, drive through heels.'},
+    {id:'ub02',icon:'⬆️',name:'Overhead Press',muscle:'Shoulders / Triceps',sets:'4×6',cal:80,type:'strength',diff:'intermediate',notes:'Bar starts at collarbone, press overhead until arms fully lock out.'},
+    {id:'ub03',icon:'📐',name:'Incline Dumbbell Press',muscle:'Upper Chest',sets:'3×10',cal:70,type:'strength',diff:'intermediate',notes:'30–45° incline, neutral grip, lower to upper chest with a controlled eccentric.'},
+    {id:'ub04',icon:'↔️',name:'Lateral Raises',muscle:'Side Delts',sets:'4×15',cal:40,type:'strength',diff:'beginner',notes:'Slight bend in elbow, lead with elbows, pause 1 sec at the top.'},
+    {id:'ub05',icon:'🔝',name:'Pull-Ups',muscle:'Lats / Biceps',sets:'4×8',cal:85,type:'strength',diff:'intermediate',notes:'Dead hang start, pull until chin clears bar. Add weight when 8 reps is easy.'},
+    {id:'ub06',icon:'🔙',name:'Barbell Bent-Over Row',muscle:'Mid Back / Lats',sets:'4×8',cal:95,type:'strength',diff:'intermediate',notes:'Hip hinge 45°, pull bar to lower chest, squeeze shoulder blades.'},
+    {id:'ub07',icon:'🪝',name:'Cable Row',muscle:'Mid Back',sets:'3×12',cal:60,type:'strength',diff:'beginner',notes:'Neutral grip, drive elbows back past torso, hold 1 sec at peak contraction.'},
+    {id:'ub08',icon:'🎯',name:'Face Pulls',muscle:'Rear Delts',sets:'3×15',cal:35,type:'strength',diff:'beginner',notes:'High cable, pull rope to forehead, externally rotate at the end.'},
+    {id:'ub09',icon:'💥',name:'Tricep Pushdown',muscle:'Triceps',sets:'3×12',cal:45,type:'strength',diff:'beginner',notes:'Elbows pinned at sides, full extension at the bottom, controlled return.'},
+    {id:'ub10',icon:'🌀',name:'Dumbbell Curl',muscle:'Biceps',sets:'3×12',cal:45,type:'strength',diff:'beginner',notes:'Supinate the wrist as you curl up, full stretch at the bottom.'},
+    {id:'ub11',icon:'🔄',name:'Arnold Press',muscle:'All 3 Delt Heads',sets:'3×10',cal:65,type:'strength',diff:'intermediate',notes:'Start palms facing you, rotate to forward-facing as you press overhead.'},
+    {id:'ub12',icon:'⚡',name:'Skull Crushers',muscle:'Triceps Long Head',sets:'3×10',cal:55,type:'strength',diff:'intermediate',notes:'Keep upper arms vertical, lower bar to forehead, extend fully.'},
+    {id:'ub13',icon:'🤸',name:'Chest Stretch & Opener',muscle:'Chest / Anterior Shoulder',sets:'3×45 sec',cal:15,type:'flexibility',diff:'beginner',notes:'Doorway chest stretch. Hold firmly, feel the pec and anterior delt open.'},
+  ]},
+  {id:'lower',name:'Lower Body',emoji:'🦵',color:'var(--gold)',chipClass:'lower-chip',sub:'Quads · Hamstrings · Glutes · Calves',desc:'Individual exercises for the full lower body. Stack squats, hinges, lunges and isolation moves to build your leg session from scratch.',
+  exercises:[
+    {id:'lb01',icon:'🏋️',name:'Barbell Back Squat',muscle:'Quads / Glutes',sets:'5×5',cal:120,type:'strength',diff:'intermediate',notes:'Bar on traps, hip-width stance, squat below parallel, drive knees out.'},
+    {id:'lb02',icon:'⬇️',name:'Romanian Deadlift',muscle:'Hamstrings / Glutes',sets:'4×8',cal:110,type:'strength',diff:'intermediate',notes:'Hinge at hip, soft knee, lower bar along thighs until hamstrings fully stretch.'},
+    {id:'lb03',icon:'🦵',name:'Leg Press',muscle:'Quads / Glutes',sets:'3×12',cal:85,type:'strength',diff:'beginner',notes:'Feet shoulder-width, lower until 90°, do not lock knees at the top.'},
+    {id:'lb04',icon:'🪜',name:'Bulgarian Split Squat',muscle:'Quads / Glutes',sets:'3×10 each',cal:90,type:'strength',diff:'advanced',notes:'Rear foot elevated, long stride, lower until back knee nearly touches floor.'},
+    {id:'lb05',icon:'💥',name:'Hip Thrust',muscle:'Glutes',sets:'4×12',cal:80,type:'strength',diff:'beginner',notes:'Bar on hip crease, drive heels into floor, full hip extension and squeeze at top.'},
+    {id:'lb06',icon:'↗️',name:'Leg Extension',muscle:'Quads (Isolation)',sets:'3×15',cal:50,type:'strength',diff:'beginner',notes:'Pause at full extension for 1 sec. Control the lowering phase.'},
+    {id:'lb07',icon:'↘️',name:'Lying Leg Curl',muscle:'Hamstrings (Isolation)',sets:'3×15',cal:50,type:'strength',diff:'beginner',notes:'Full range of motion. Do not let hips rise on the concentric.'},
+    {id:'lb08',icon:'🦶',name:'Standing Calf Raise',muscle:'Calves',sets:'4×20',cal:40,type:'strength',diff:'beginner',notes:'Full range — deep stretch at bottom, hold 2 sec at the top.'},
+    {id:'lb09',icon:'🚶',name:'Walking Lunge',muscle:'Quads / Glutes',sets:'3×12 each',cal:75,type:'strength',diff:'beginner',notes:'Long stride, back knee to floor, torso upright throughout.'},
+    {id:'lb10',icon:'🎯',name:'Sumo Deadlift',muscle:'Inner Thighs / Glutes',sets:'4×6',cal:130,type:'strength',diff:'advanced',notes:'Wide stance, toes out, grip inside legs, keep chest up throughout the pull.'},
+    {id:'lb11',icon:'🔁',name:'Nordic Curl',muscle:'Hamstrings (Eccentric)',sets:'3×5',cal:60,type:'strength',diff:'advanced',notes:'Anchor feet, lower body as slowly as possible, catch yourself at the bottom.'},
+    {id:'lb12',icon:'🧘',name:'Hip Flexor & Hamstring Stretch',muscle:'Hip Flexors / Hamstrings',sets:'3×45 sec each',cal:20,type:'flexibility',diff:'beginner',notes:'Kneeling lunge into standing hamstring reach. Breathe into each hold.'},
+  ]},
+  {id:'cardio',name:'Cardio',emoji:'🏃',color:'var(--green)',chipClass:'cardio-chip',sub:'HIIT · Steady State · Running · Rowing',desc:'Individual cardio exercises from short intense bursts to long steady-state work. Add one or several to any day.',
+  exercises:[
+    {id:'ca01',icon:'🏃',name:'Sprint Intervals',muscle:'Full Body / Cardiovascular',sets:'8×20s on / 40s off',cal:180,type:'cardio',diff:'advanced',notes:'True maximum effort sprints. Use a track, treadmill or open road.'},
+    {id:'ca02',icon:'🚴',name:'Zone 2 Bike',muscle:'Legs / Cardiovascular',sets:'1×45 min',cal:320,type:'cardio',diff:'beginner',notes:'60–70% max heart rate. Should be able to hold a conversation throughout.'},
+    {id:'ca03',icon:'🚣',name:'Rowing Machine',muscle:'Full Body / Cardiovascular',sets:'1×20 min',cal:200,type:'cardio',diff:'beginner',notes:'Drive legs first, then lean back, then pull arms. Ratio is 1:2 drive-to-recover.'},
+    {id:'ca04',icon:'🥊',name:'Jump Rope',muscle:'Calves / Cardiovascular',sets:'5×60 sec',cal:150,type:'cardio',diff:'intermediate',notes:'Wrists drive the rope, not arms. Small jumps for efficiency.'},
+    {id:'ca05',icon:'🏔️',name:'Stairmaster',muscle:'Glutes / Quads / Cardio',sets:'1×20 min',cal:240,type:'cardio',diff:'intermediate',notes:'Avoid leaning on the handrails — it defeats the purpose.'},
+    {id:'ca06',icon:'🏅',name:'5K Run',muscle:'Full Body / Cardiovascular',sets:'1 run',cal:300,type:'cardio',diff:'beginner',notes:'Negative split strategy — run the second half slightly faster than the first.'},
+    {id:'ca07',icon:'🔥',name:'Burpees',muscle:'Full Body / Cardiovascular',sets:'4×45 sec',cal:120,type:'cardio',diff:'intermediate',notes:'Chest to floor every rep. Explode on the jump, full hip extension at the top.'},
+    {id:'ca08',icon:'🦘',name:'Jump Squats',muscle:'Quads / Glutes / Cardio',sets:'4×15',cal:80,type:'cardio',diff:'intermediate',notes:'Deep squat, explode upward, soft landing with bent knees.'},
+    {id:'ca09',icon:'⛰️',name:'Mountain Climbers',muscle:'Core / Cardiovascular',sets:'4×40 sec',cal:90,type:'cardio',diff:'intermediate',notes:'Flat back, drive alternate knees toward opposite elbow for oblique work.'},
+    {id:'ca10',icon:'🌊',name:'Swimming Laps',muscle:'Full Body / Low Impact',sets:'20×50m',cal:280,type:'cardio',diff:'beginner',notes:'Any stroke. Focus on breathing rhythm and body rotation.'},
+  ]},
+  {id:'core',name:'Core',emoji:'⚡',color:'var(--blue)',chipClass:'core-chip',sub:'Abs · Obliques · Lower Back · Stability',desc:'Individual core exercises to mix and match. Build anti-rotation strength, spinal stability and visible ab definition.',
+  exercises:[
+    {id:'co01',icon:'⬛',name:'Plank',muscle:'Deep Core / Glutes',sets:'3×45 sec',cal:30,type:'strength',diff:'beginner',notes:'Posterior pelvic tilt, squeeze every muscle. Do not let hips sag or pike.'},
+    {id:'co02',icon:'🐛',name:'Dead Bug',muscle:'Deep Core (Anti-extension)',sets:'3×10 each side',cal:25,type:'strength',diff:'beginner',notes:'Press lower back into floor throughout. Extend opposite arm and leg slowly.'},
+    {id:'co03',icon:'🐦',name:'Bird Dog',muscle:'Lower Back / Glutes',sets:'3×10 each side',cal:25,type:'strength',diff:'beginner',notes:'Spine neutral, no hip rotation. Extend arm and leg until fully straight.'},
+    {id:'co04',icon:'🦵',name:'Leg Raises',muscle:'Lower Abs',sets:'3×20',cal:35,type:'strength',diff:'intermediate',notes:'Lower back pressed flat. Slow controlled descent is more effective than fast reps.'},
+    {id:'co05',icon:'🌀',name:'Russian Twists',muscle:'Obliques',sets:'3×20 each side',cal:40,type:'strength',diff:'intermediate',notes:'Feet elevated, rotate fully side to side. Add a weight plate for progression.'},
+    {id:'co06',icon:'🚲',name:'Bicycle Crunch',muscle:'Obliques / Upper Abs',sets:'3×20 each side',cal:40,type:'strength',diff:'intermediate',notes:"Slow and deliberate — don't rush. Fully extend the straight leg each rep."},
+    {id:'co07',icon:'📌',name:'Pallof Press',muscle:'Anti-Rotation Core',sets:'3×12 each side',cal:30,type:'strength',diff:'intermediate',notes:'Hold the extension for 2 sec. Resist the cable pulling you sideways.'},
+    {id:'co08',icon:'🌊',name:'Hollow Body Hold',muscle:'Full Core',sets:'3×30 sec',cal:30,type:'strength',diff:'intermediate',notes:'Lower back flat, arms overhead, legs at ~45°. Scale with bent knees.'},
+    {id:'co09',icon:'⚡',name:'V-Ups',muscle:'Full Abs',sets:'3×15',cal:40,type:'strength',diff:'advanced',notes:'Meet hands to feet at the top. Arms and legs stay straight throughout.'},
+    {id:'co10',icon:'↔️',name:'Side Plank',muscle:'Obliques / Glute Med',sets:'3×30 sec each',cal:25,type:'strength',diff:'beginner',notes:'Hips stacked and lifted. Progress to hip dips for extra oblique work.'},
+    {id:'co11',icon:'🔄',name:'Cable Woodchop',muscle:'Obliques / Rotators',sets:'3×12 each side',cal:45,type:'strength',diff:'intermediate',notes:'Rotate through the hips, not just the arms. Brace core throughout.'},
+    {id:'co12',icon:'🧘',name:'Cat-Cow + Spinal Twist',muscle:'Lower Back Mobility',sets:'3×10 each',cal:15,type:'flexibility',diff:'beginner',notes:'Breathe into every position. Excellent post-session lower back recovery.'},
+  ]},
+  {id:'hiit',name:'HIIT / Full Body',emoji:'🔥',color:'var(--purple)',chipClass:'hiit-chip',sub:'Compound Lifts · Circuits · Plyometrics',desc:'High-intensity and full-body movements. Drop one or two into any day to elevate intensity or finish a session strong.',
+  exercises:[
+    {id:'hi01',icon:'🔥',name:'Barbell Deadlift',muscle:'Full Posterior Chain',sets:'5×5',cal:150,type:'strength',diff:'advanced',notes:'Bar over mid-foot, neutral spine, drive floor away, lock out fully at top.'},
+    {id:'hi02',icon:'⚙️',name:'Kettlebell Swing',muscle:'Glutes / Hamstrings / Core',sets:'5×20',cal:120,type:'cardio',diff:'intermediate',notes:'Hip hinge — not a squat. Explosive hip drive floats the bell. Hike it back hard.'},
+    {id:'hi03',icon:'🏋️',name:'Power Clean',muscle:'Full Body / Explosive',sets:'5×3',cal:130,type:'strength',diff:'advanced',notes:'Triple extension — ankle, knee, hip. Fast elbows under the bar. Start light.'},
+    {id:'hi04',icon:'📦',name:'Box Jump',muscle:'Quads / Glutes / Power',sets:'5×5',cal:80,type:'cardio',diff:'intermediate',notes:"Explode upward with full hip extension. Step down — don't jump down."},
+    {id:'hi05',icon:'💥',name:'Burpee Pull-Up',muscle:'Full Body',sets:'4×8',cal:140,type:'cardio',diff:'advanced',notes:'Drop, push up, jump and grab the bar, pull chin over, drop again.'},
+    {id:'hi06',icon:'🥤',name:'Goblet Squat',muscle:'Quads / Glutes / Core',sets:'4×12',cal:80,type:'strength',diff:'beginner',notes:'Hold DB or KB at chest, squat deep, elbows track inside knees.'},
+    {id:'hi07',icon:'🌀',name:'Dumbbell Complex',muscle:'Full Body',sets:'4 rounds',cal:160,type:'cardio',diff:'advanced',notes:'Curl → Press → RDL → Row without putting the dumbbells down. One weight.'},
+    {id:'hi08',icon:'🚀',name:'Jump Lunge',muscle:'Quads / Glutes / Cardio',sets:'4×10 each',cal:90,type:'cardio',diff:'intermediate',notes:'Explosive switch in the air. Land softly with bent knees.'},
+    {id:'hi09',icon:'💼',name:"Farmer's Carry",muscle:'Grip / Traps / Core',sets:'4×40m',cal:60,type:'strength',diff:'beginner',notes:"Heavy weight, walk tall, brace core. Don't let weight pull shoulder down."},
+    {id:'hi10',icon:'⏱️',name:'Tabata (Any Exercise)',muscle:'Full Body / Cardiovascular',sets:'8×20s on/10s off',cal:200,type:'cardio',diff:'advanced',notes:'20 sec max effort, 10 sec rest × 8 rounds. Choose any movement.'},
+  ]},
+];
+
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+let plan={};
+const SK_PLAN='wb2_plan_v1',SK_CUSTOM='wb2_custom_v1';
+function savePlan(){try{localStorage.setItem(SK_PLAN,JSON.stringify(plan));}catch(e){}}
+function loadPlan(){try{const r=localStorage.getItem(SK_PLAN);if(r)plan=JSON.parse(r);}catch(e){plan={};}}
+function saveCustom(){const c=[];GROUPS.forEach(g=>g.exercises.forEach(e=>{if(e.custom)c.push({...e,groupId:g.id});}));try{localStorage.setItem(SK_CUSTOM,JSON.stringify(c));}catch(e){}}
+function loadCustom(){try{const r=localStorage.getItem(SK_CUSTOM);if(!r)return;JSON.parse(r).forEach(e=>{const g=GROUPS.find(x=>x.id===e.groupId);if(g&&!g.exercises.find(x=>x.id===e.id)){const{groupId,...ex}=e;g.exercises.push(ex);}});}catch(e){}}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(()=>{const s=document.getElementById('splash');s.classList.add('gone');setTimeout(()=>s.remove(),650);},1800);
+  loadCustom();loadPlan();renderGroupStrip();renderWeekGrid();updateBadge();
+});
+
+function renderGroupStrip(){
+  document.getElementById('groupStrip').innerHTML=GROUPS.map((g,i)=>`
+    <div class="group-card ${g.id}" onclick="openGroup('${g.id}')">
+      <div class="gc-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="gc-count">${g.exercises.length} exercises</div>
+      <span class="gc-icon">${g.emoji}</span>
+      <div class="gc-name">${g.name}</div>
+      <div class="gc-sub">${g.sub}</div>
+      <div class="gc-arrow">→</div>
+    </div>`).join('');
+}
+
+let currentGroup=null,currentFilter='all';
+function openGroup(id){currentGroup=GROUPS.find(g=>g.id===id);currentFilter='all';renderExerciseScreen();showScreen('exercises');setBreadcrumb([{l:'Home',fn:'goHome()'},{l:currentGroup.name,fn:null}]);}
+function renderExerciseScreen(){
+  const g=currentGroup;
+  document.getElementById('exHeader').innerHTML=`<div class="ex-header-left"><h2 style="color:${g.color}">${g.name}</h2><p>${g.desc}</p></div><div class="ex-header-right">${g.emoji}</div>`;
+  const filters=[{k:'all',l:'All',i:'🏋️'},{k:'strength',l:'Strength',i:'💪'},{k:'cardio',l:'Cardio',i:'🏃'},{k:'flexibility',l:'Flexibility',i:'🧘'}];
+  document.getElementById('exFilter').innerHTML=filters.map(f=>`<button class="filt-btn f-${f.k} ${f.k===currentFilter?'active':''}" onclick="setFilter('${f.k}')">${f.i} ${f.l}</button>`).join('');
+  renderExGrid();
+}
+function setFilter(f){currentFilter=f;renderExerciseScreen();}
+function renderExGrid(){
+  const exs=currentFilter==='all'?currentGroup.exercises:currentGroup.exercises.filter(e=>e.type===currentFilter);
+  const cards=exs.map(e=>{
+    const c=countInPlan(e.id);
+    const bc=c>1?'multi':c===1?'added':'';
+    const bt=c>1?`✅ On ${c} days`:c===1?'✅ Scheduled':'+ Add to a day';
+    return `<div class="ex-card" onclick="openDayPicker('${e.id}')">
+      ${e.custom?'<div class="custom-badge">Custom</div>':''}
+      <button class="card-del-btn" onclick="event.stopPropagation();openDel('${e.id}')">✕</button>
+      <div class="ex-card-top"><div class="ex-icon">${e.icon}</div><div class="ex-tags"><span class="tag ${e.type}">${e.type}</span><span class="tag ${e.diff}">${e.diff}</span></div></div>
+      <div class="ex-name">${e.name}</div>
+      <div class="ex-muscle">${e.muscle}</div>
+      <div class="ex-stats"><span>📋 ${e.sets}</span><span>🔥 ~${e.cal} cal</span></div>
+      ${e.notes?`<div style="font-size:.7rem;color:var(--muted);line-height:1.55;border-top:1px solid var(--border);padding-top:8px;">${e.notes}</div>`:''}
+      <button class="add-ex-btn ${bc}" onclick="event.stopPropagation();openDayPicker('${e.id}')">${bt}</button>
+    </div>`;
+  }).join('');
+  const addTile=`<div class="add-custom-tile" onclick="openCRModal('${currentGroup.id}')"><div class="act-icon">＋</div><div class="act-label">Add custom exercise</div><div class="act-sub">Create your own and<br>add it to this group</div></div>`;
+  document.getElementById('exGrid').innerHTML=exs.length?cards+addTile:addTile;
+}
+function countInPlan(exId){return Object.values(plan).reduce((n,d)=>n+d.filter(e=>e.exId===exId).length,0);}
+
+let pickerExId=null;
+function openDayPicker(exId){
+  pickerExId=exId;
+  const ex=allExercises().find(e=>e.id===exId);
+  const g=GROUPS.find(g=>g.exercises.some(e=>e.id===exId));
+  document.getElementById('mIcon').textContent=ex.icon;
+  document.getElementById('mName').textContent=ex.name;
+  document.getElementById('mSub').textContent=`${ex.muscle} · ${ex.sets} · ~${ex.cal} cal`;
+  refreshDayPills(exId,g.id);
+  document.getElementById('dayOverlay').classList.add('open');
+}
+function refreshDayPills(exId,groupId){
+  document.getElementById('dayPicker').innerHTML=DAYS.map(d=>{
+    const on=(plan[d]||[]).some(e=>e.exId===exId);
+    const total=(plan[d]||[]).length;
+    return `<button class="day-pill ${on?'selected':''}" data-day="${d}" onclick="toggleDay('${d}','${exId}','${groupId}')">${d}<span class="pill-count">${total>0?total+'ex':''}</span></button>`;
+  }).join('');
+}
+function toggleDay(day,exId,groupId){
+  const ex=allExercises().find(e=>e.id===exId);
+  const g=GROUPS.find(x=>x.id===groupId);
+  if(!plan[day])plan[day]=[];
+  const idx=plan[day].findIndex(e=>e.exId===exId);
+  if(idx!==-1){plan[day].splice(idx,1);if(!plan[day].length)delete plan[day];showToast(`Removed from ${day}`);}
+  else{plan[day].push({exId,groupId,name:ex.name,icon:ex.icon,sets:ex.sets,cal:ex.cal,chipClass:g.chipClass});showToast(`${ex.icon} Added to ${day}`);}
+  savePlan();updateBadge();renderWeekGrid();
+  if(document.getElementById('screen-exercises').classList.contains('active'))renderExGrid();
+  refreshDayPills(exId,groupId);
+}
+function closeDayOverlay(e){if(e.target===document.getElementById('dayOverlay'))closeDayOverlayDirect();}
+function closeDayOverlayDirect(){document.getElementById('dayOverlay').classList.remove('open');pickerExId=null;}
+function viewPlanAfterAdd(){closeDayOverlayDirect();showScreen('planner');setBreadcrumb([{l:'Home',fn:'goHome()'},{l:'My Week',fn:null}]);}
+
+function renderWeekGrid(){
+  document.getElementById('weekGrid').innerHTML=DAYS.map(d=>{
+    const exs=plan[d]||[];
+    const totalCal=exs.reduce((s,e)=>s+Number(e.cal||0),0);
+    const chips=exs.length?exs.map((e,i)=>`<div class="ex-chip ${e.chipClass}"><button class="chip-remove" onclick="removeFromDay('${d}',${i})">✕</button><div class="chip-name">${e.icon} ${e.name}</div><div class="chip-meta">${e.sets} · ~${e.cal} cal</div></div>`).join(''):'<div class="day-empty">Rest day</div>';
+    const summary=exs.length?`<div class="day-summary"><span>📋 ${exs.length} ex</span><span>🔥 ~${totalCal} cal</span></div>`:'';
+    return `<div class="day-col"><div class="day-head">${d}</div><div class="day-body">${chips}</div>${summary}</div>`;
+  }).join('');
+  const te=Object.values(plan).reduce((s,d)=>s+d.length,0);
+  const ad=Object.keys(plan).length;
+  const tc=Object.values(plan).flat().reduce((s,e)=>s+Number(e.cal||0),0);
+  const gr=new Set(Object.values(plan).flat().map(e=>e.groupId)).size;
+  document.getElementById('plannerFooter').innerHTML=`<div class="pf-stat"><span class="pf-val">${te}</span><div class="pf-lbl">Exercises</div></div><div class="pf-stat"><span class="pf-val">${ad}/7</span><div class="pf-lbl">Days Active</div></div><div class="pf-stat"><span class="pf-val">${gr}</span><div class="pf-lbl">Muscle Groups</div></div><div class="pf-stat"><span class="pf-val">~${tc}</span><div class="pf-lbl">Total Cal</div></div><div class="pf-actions"><button class="nav-btn" onclick="clearPlan()">Clear All</button></div>`;
+}
+function removeFromDay(day,idx){plan[day].splice(idx,1);if(!plan[day].length)delete plan[day];savePlan();updateBadge();renderWeekGrid();if(document.getElementById('screen-exercises').classList.contains('active'))renderExGrid();}
+function clearPlan(){plan={};savePlan();updateBadge();renderWeekGrid();showToast('Plan cleared');if(document.getElementById('screen-exercises').classList.contains('active'))renderExGrid();}
+function updateBadge(){const t=Object.values(plan).reduce((s,d)=>s+d.length,0);const b=document.getElementById('planBadge');b.textContent=t;b.style.display=t?'inline-block':'none';}
+
+let crGroupId=null,crEmoji='💪';
+function openCRModal(gid){
+  crGroupId=gid;crEmoji='💪';
+  const g=GROUPS.find(x=>x.id===gid);
+  document.getElementById('crBadge').textContent=g.name;document.getElementById('crBadge').style.color=g.color;document.getElementById('crBadge').style.borderColor=g.color;
+  ['crName','crMuscle','crSets','crCal','crNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('crType').value='';document.getElementById('crDiff').value='intermediate';document.getElementById('emojiCustom').value='';
+  document.querySelectorAll('.emoji-opt').forEach(b=>b.classList.toggle('sel',b.dataset.e==='💪'));
+  document.getElementById('crOverlay').classList.add('open');setTimeout(()=>document.getElementById('crName').focus(),300);
+}
+function closeCR(e){if(e.target===document.getElementById('crOverlay'))closeCRDirect();}
+function closeCRDirect(){document.getElementById('crOverlay').classList.remove('open');}
+function pickEmoji(btn){crEmoji=btn.dataset.e;document.querySelectorAll('.emoji-opt').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('emojiCustom').value='';}
+function customEmoji(v){if(v){crEmoji=v;document.querySelectorAll('.emoji-opt').forEach(b=>b.classList.remove('sel'));}}
+function saveCustomEx(){
+  const name=document.getElementById('crName').value.trim();
+  const muscle=document.getElementById('crMuscle').value.trim();
+  const type=document.getElementById('crType').value;
+  if(!name){hlField('crName');showToast('⚠️ Enter a name');return;}
+  if(!muscle){hlField('crMuscle');showToast('⚠️ Enter a muscle');return;}
+  if(!type){hlField('crType');showToast('⚠️ Select a type');return;}
+  const ex={id:'cx_'+Date.now(),icon:crEmoji||'💪',name,muscle,type,sets:document.getElementById('crSets').value.trim()||'—',cal:document.getElementById('crCal').value.trim()||0,diff:document.getElementById('crDiff').value,notes:document.getElementById('crNotes').value.trim(),custom:true};
+  GROUPS.find(g=>g.id===crGroupId).exercises.push(ex);
+  saveCustom();closeCRDirect();showToast(`${ex.icon} "${ex.name}" added!`);renderExerciseScreen();renderGroupStrip();
+}
+function hlField(id){const el=document.getElementById(id);if(!el)return;el.style.borderColor='var(--accent)';el.focus();setTimeout(()=>el.style.borderColor='',1800);}
+
+let delExId=null;
+function openDel(exId){delExId=exId;const ex=allExercises().find(e=>e.id===exId);document.getElementById('delPreview').innerHTML=`<div class="del-preview-icon">${ex.icon}</div><div class="del-preview-name">${ex.name}</div>`;document.getElementById('delOverlay').classList.add('open');}
+function closeDelOverlay(e){if(e.target===document.getElementById('delOverlay'))closeDelDirect();}
+function closeDelDirect(){document.getElementById('delOverlay').classList.remove('open');delExId=null;}
+function confirmDel(){
+  if(!delExId)return;
+  const ex=allExercises().find(e=>e.id===delExId);
+  for(const g of GROUPS){const i=g.exercises.findIndex(e=>e.id===delExId);if(i!==-1){g.exercises.splice(i,1);break;}}
+  DAYS.forEach(d=>{if(!plan[d])return;plan[d]=plan[d].filter(e=>e.exId!==delExId);if(!plan[d].length)delete plan[d];});
+  saveCustom();savePlan();updateBadge();renderWeekGrid();closeDelDirect();showToast(`🗑 "${ex.name}" deleted`);
+  if(currentGroup)renderExerciseScreen();renderGroupStrip();
+}
+
+let pendingImport=null;
+function openSyncModal(){const cc=GROUPS.flatMap(g=>g.exercises).filter(e=>e.custom).length;const cp=Object.values(plan).flat().length;document.getElementById('syncMeta').textContent=`${cc} custom exercise${cc!==1?'s':''} · ${cp} scheduled exercise${cp!==1?'s':''}`;resetImport();document.getElementById('syncOverlay').classList.add('open');}
+function closeSyncOverlay(e){if(e.target===document.getElementById('syncOverlay'))closeSyncDirect();}
+function closeSyncDirect(){document.getElementById('syncOverlay').classList.remove('open');pendingImport=null;}
+function exportData(){const c=GROUPS.flatMap(g=>g.exercises.filter(e=>e.custom).map(e=>({...e,groupId:g.id})));const blob=new Blob([JSON.stringify({version:2,exportedAt:new Date().toISOString(),customs:c,plan},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`workout-buddy-${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('📦 Backup downloaded!');}
+function handleDrop(e){e.preventDefault();document.getElementById('syncDropZone').style.borderColor='';const f=e.dataTransfer.files[0];if(f)parseImport(f);}
+function handleImportFile(e){const f=e.target.files[0];if(f)parseImport(f);e.target.value='';}
+function parseImport(file){const r=new FileReader();r.onload=function(e){try{const d=JSON.parse(e.target.result);if(typeof d!=='object'||!d.version){showToast('⚠️ Invalid backup');return;}pendingImport=d;const cc=(d.customs||[]).length;const cp=Object.values(d.plan||{}).flat().length;const dt=d.exportedAt?new Date(d.exportedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Unknown date';document.getElementById('importPreviewText').textContent=`${file.name} · ${dt} · ${cc} custom exercise${cc!==1?'s':''} · ${cp} session${cp!==1?'s':''}`;document.getElementById('importPreview').style.display='block';document.getElementById('syncDropZone').style.display='none';}catch(err){showToast('⚠️ Could not read file');}};r.readAsText(file);}
+function confirmImport(){if(!pendingImport)return;let ae=0,ap=0;const ex=new Set(GROUPS.flatMap(g=>g.exercises.map(e=>e.id)));(pendingImport.customs||[]).forEach(e=>{if(ex.has(e.id))return;const g=GROUPS.find(x=>x.id===e.groupId);if(!g)return;const{groupId,...exc}=e;g.exercises.push(exc);ex.add(e.id);ae++;});Object.entries(pendingImport.plan||{}).forEach(([day,exs])=>{if(!plan[day])plan[day]=[];exs.forEach(e=>{if(!plan[day].some(x=>x.exId===e.exId)){plan[day].push(e);ap++;}});});saveCustom();savePlan();renderGroupStrip();renderWeekGrid();updateBadge();closeSyncDirect();showToast(`✅ ${ae} exercise${ae!==1?'s':''}, ${ap} session${ap!==1?'s':''} imported`);}
+function resetImport(){pendingImport=null;document.getElementById('importPreview').style.display='none';document.getElementById('syncDropZone').style.display='block';const i=document.getElementById('importInput');if(i)i.value='';}
+
+function allExercises(){return GROUPS.flatMap(g=>g.exercises);}
+function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+name).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+function goHome(){showScreen('home');setBreadcrumb([{l:'Home',fn:null}]);}
+function setBreadcrumb(items){document.getElementById('breadcrumb').innerHTML=items.map((item,i)=>`${i?'<span class="bc-sep">›</span>':''}<span class="${item.fn?'crumb':'bc-active'}" ${item.fn?`onclick="${item.fn}"`:''}>${item.l}</span>`).join('');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+</script>
+</body>
+</html>
